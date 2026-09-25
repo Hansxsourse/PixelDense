@@ -1,0 +1,297 @@
+/* Base styles adapted from the Nerfies / PixelGen project-page template. */
+
+:root {
+  --pd-sem: #2f6fc6;       /* semantic stream (DINOv2, SAM2) */
+  --pd-geo: #13937a;       /* geometric stream (Depth Anything v2, Metric3D v2) */
+  --pd-accent: #b8282e;    /* PixelDense highlight, matches the paper's plots */
+  --pd-ink: #363636;
+  --pd-muted: #6b6b6b;
+  --pd-rule: #e4e4e4;
+  --pd-tint: #f3f7fc;
+}
+
+body {
+  font-family: "Lato", "Noto Sans", sans-serif;
+  font-size: 1.1em;
+  color: var(--pd-ink);
+}
+
+.publication-title,
+.publication-authors,
+.title {
+  font-family: "Noto Sans", sans-serif;
+}
+
+.title.publication-title {
+  font-size: 2.15rem;
+  line-height: 1.25;
+}
+
+.publication-authors {
+  line-height: 1.7;
+}
+
+.publication-authors a {
+  color: hsl(204, 86%, 53%) !important;
+}
+
+.publication-authors a:hover {
+  text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+.affiliations {
+  font-size: 1.05rem;
+  color: var(--pd-muted);
+  margin-top: 0.35rem;
+}
+
+.affiliations .author-block {
+  margin: 0 0.45rem;
+}
+
+.publication-venue {
+  margin-top: 0.8rem;
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--pd-accent);
+}
+
+.link-block a {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Placeholder button (no link yet), e.g. the Hugging Face demo. */
+.button.is-soon {
+  cursor: default;
+}
+
+.button.is-soon:hover {
+  background-color: #363636;
+}
+
+.teaser .hero-body {
+  padding-top: 0;
+  padding-bottom: 2.5rem;
+}
+
+.title.is-3 {
+  font-weight: 900;
+  font-size: 2rem;
+}
+
+.title.is-4 {
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-top: 2.5rem;
+}
+
+.title.is-5 {
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem !important;
+}
+
+.sem { color: var(--pd-sem); font-weight: 700; }
+.geo { color: var(--pd-geo); font-weight: 700; }
+.pd  { color: var(--pd-accent); font-weight: 700; }
+
+/* Figures */
+.figure {
+  margin: 1.5rem auto 2rem;
+  text-align: center;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.figure a {
+  cursor: zoom-in;
+}
+
+.figure.is-wide   { max-width: 90%; }
+.figure.is-medium { max-width: 72%; }
+.figure.is-narrow { max-width: 55%; }
+
+.caption {
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5;
+  color: var(--pd-ink);
+  text-align: left;
+  margin: 0.6rem auto 0;
+  max-width: 100%;
+}
+
+.caption b:first-child {
+  font-weight: 700;
+}
+
+/* Key-result tiles */
+.highlights {
+  margin-top: 0.5rem;
+}
+
+.highlight {
+  height: 100%;
+  padding: 1.1rem 1rem;
+  border: 1px solid var(--pd-rule);
+  border-radius: 10px;
+  background: #fff;
+  text-align: center;
+}
+
+.highlight .value {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--pd-accent);
+  white-space: nowrap;
+}
+
+.highlight .value .from {
+  color: var(--pd-muted);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.highlight .label {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--pd-muted);
+}
+
+/* Stream cards in the method section */
+.stream {
+  height: 100%;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 2px dashed;
+  font-size: 0.95rem;
+}
+
+.stream.is-sem { border-color: #9cc3ea; background: #f2f7fd; }
+.stream.is-geo { border-color: #8ed3c1; background: #effaf6; }
+.stream.is-orth { border-color: #f1c98a; background: #fff9ef; }
+
+.stream h5 {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+/* Result tables */
+.table-wrap {
+  margin: 1.2rem auto 2rem;
+}
+
+.table-wrap .table-container {
+  margin-bottom: 0;
+}
+
+.table.results {
+  font-size: 0.82rem;
+  margin: 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.table.results th,
+.table.results td {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 0.3em 0.55em;
+}
+
+.table.results th.left,
+.table.results td.left {
+  text-align: left;
+}
+
+.table.results thead th {
+  border-bottom-width: 1px;
+  font-weight: 700;
+}
+
+.table.results thead tr:first-child th {
+  border-top: 2px solid #4a4a4a;
+}
+
+.table.results tbody {
+  border-bottom: 2px solid #4a4a4a;
+}
+
+.table.results tr.group-start td {
+  border-top: 1px solid #b5b5b5;
+}
+
+.table.results tr.ours td {
+  background: var(--pd-tint);
+}
+
+.table.results td.sub {
+  font-style: italic;
+  color: var(--pd-muted);
+  text-align: left;
+  background: #fafafa;
+}
+
+.table.results .best {
+  font-weight: 700;
+}
+
+.table-caption {
+  font-size: 0.8em;
+  line-height: 1.5;
+  margin: 0 auto 0.5rem;
+  text-align: left;
+}
+
+/* BibTeX */
+.bibtex-wrap {
+  position: relative;
+}
+
+.bibtex-wrap pre {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding-right: 5.5rem;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+}
+
+/* Long display equations scroll inside their own box on narrow screens. */
+mjx-container[display="true"] {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0;
+}
+
+@media screen and (max-width: 768px) {
+  .title.publication-title { font-size: 1.6rem; }
+  .title.is-3 { font-size: 1.7rem; }
+  .title.is-4 { font-size: 1.35rem; }
+  .content.has-text-justified { text-align: left !important; }
+  .section.abstract { padding: 2rem 1.25rem; }
+  .section.abstract .hero-body { padding: 0; }
+  .figure.is-wide,
+  .figure.is-medium,
+  .figure.is-narrow { max-width: 100%; }
+  .highlight .value { font-size: 1.4rem; }
+}

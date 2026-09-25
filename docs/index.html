@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PixelDense: Dense Prediction as Representation Alignment for Pixel Diffusion</title>
+  <meta name="description"
+        content="PixelDense routes semantic (DINOv2, SAM2) and geometric (Depth Anything v2, Metric3D v2) dense-prediction teachers through orthogonal representation-alignment streams for pixel-space diffusion. NeurIPS 2026.">
+  <meta name="keywords" content="PixelDense, pixel diffusion, representation alignment, REPA, dense prediction, text-to-image, NeurIPS 2026">
+
+  <meta property="og:title" content="PixelDense: Dense Prediction as Representation Alignment for Pixel Diffusion">
+  <meta property="og:description" content="Factored semantic–geometric representation alignment for pixel-space diffusion. NeurIPS 2026.">
+  <meta property="og:url" content="https://hansxsourse.github.io/PixelDense/">
+  <meta property="og:image" content="https://hansxsourse.github.io/PixelDense/static/images/teaser.jpg">
+  <meta property="og:image:width" content="2000">
+  <meta property="og:image:height" content="763">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="./static/images/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./static/images/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+
+<!-- ============================== Title ============================== -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <br><br>
+          <h1 class="title is-2 publication-title">
+            PixelDense: Dense Prediction as Representation Alignment for Pixel Diffusion
+          </h1>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><a href="https://bio.lehanyang.info/" target="_blank">Lehan Yang</a><sup>1</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://daiqing-qi.github.io/me/index.html" target="_blank">Daiqing Qi</a><sup>1</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://wenhaozhang0066.github.io/" target="_blank">Wenhao Zhang</a><sup>1</sup>,&nbsp;</span>
+            <span class="author-block">Avery Li<sup>1</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://scholar.google.com/citations?user=cIvxKeUAAAAJ&amp;hl=en" target="_blank">Yiqing Yang</a><sup>1</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://jackyfl.github.io/" target="_blank">Yifan Li</a><sup>2</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://www.egr.msu.edu/~yukong/" target="_blank">Yu Kong</a><sup>2</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://htzheng.github.io/" target="_blank">Haitian Zheng</a><sup>3</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://zzutk.github.io/" target="_blank">Zhifei Zhang</a><sup>3</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://sites.google.com/site/zhelin625/home" target="_blank">Zhe Lin</a><sup>3</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://varunjampani.github.io/" target="_blank">Varun Jampani</a><sup>4</sup>,&nbsp;</span>
+            <span class="author-block"><a href="https://sheng-li.org/" target="_blank">Sheng Li</a><sup>1</sup></span>
+          </div>
+
+          <div class="publication-authors affiliations">
+            <span class="author-block"><sup>1</sup>University of Virginia</span>
+            <span class="author-block"><sup>2</sup>Michigan State University</span>
+            <span class="author-block"><sup>3</sup>Adobe</span>
+            <span class="author-block"><sup>4</sup>Arcade AI</span>
+          </div>
+
+          <div class="publication-venue">NeurIPS 2026</div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- Code -->
+              <span class="link-block">
+                <a href="https://github.com/Hansxsourse/PixelDense" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <!-- Paper. TODO: replace XXXX.XXXXX with the arXiv ID after the camera-ready release. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/XXXX.XXXXX" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Demo. TODO: once the Hugging Face Space is live, add href="https://huggingface.co/spaces/..." target="_blank",
+                   drop the is-soon class and aria-disabled, and change the label to "Demo". -->
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark is-soon" aria-disabled="true"
+                   title="Hugging Face demo coming soon">
+                  <span class="icon">&#129303;</span>
+                  <span>Demo (Coming Soon)</span>
+                </a>
+              </span>
+              <!-- BibTeX -->
+              <span class="link-block">
+                <a href="#bibtex" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="ai ai-obp"></i></span>
+                  <span>BibTeX</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== Teaser ============================== -->
+<section class="hero teaser">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="figure" style="margin-top: 0;">
+        <img src="./static/images/teaser.jpg" alt="A grid of ten 512 by 512 text-to-image samples generated by PixelDense.">
+        <span class="caption"><b>Figure 1.</b> Text-to-image samples from PixelDense at 512&times;512. PixelDense generates diverse samples with strong compositional fidelity, including object count, attribute binding, spatial relations, and geometry-aware scene layout.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== Abstract ============================== -->
+<section class="section hero is-light abstract">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Abstract</h2>
+      <div class="content has-text-justified">
+        <p>
+          Representation alignment (REPA) accelerates diffusion transformer training, but its alignment targets are almost exclusively semantic encoders such as DINOv2 and CLIP. Recent analysis points to spatial structure, not global semantics, as the carrier of the alignment effect, yet dense-prediction foundation models trained to predict that structure remain overlooked as REPA targets. In pixel-space diffusion, SAM2, Depth Anything v2, and Metric3D v2 each outperform the DINOv2-only GenEval baseline, with the two geometric teachers leading the segmentation teacher. A flat sum of all four teachers, however, lands below the best single geometric teacher, semantic teachers reward viewpoint invariance and instance identity while geometric teachers reward metric layout and surface orientation, and forcing both kinds of gradients through one denoiser projection collapses them into a shared subspace. We introduce <b><span class="pd">PixelDense</span></b>, which routes DINOv2 and SAM2 through a <span class="sem">semantic projection stream</span>, routes Depth Anything v2 and Metric3D v2 through a <span class="geo">geometric projection stream</span>, and adds a weight-space orthogonality penalty that keeps the two streams in disjoint subspaces. All four teachers are frozen during training and dropped at inference. Applied to PixelGen and DeCo with a single recipe, PixelDense improves GenEval, DPG-Bench, and HPS v2.1, raises PixelGen-XXL's GenEval Overall from 0.7927 to 0.8093, and beats every single-teacher and unfactored multi-teacher variant. In partial-noise reconstruction, independent panoptic, depth, and surface-normal probes show up to 53.1% PQ gain and 36.0% depth AbsRel reduction at &tau; = 0.5 across COCO and Flickr30K. From random initialization, PixelDense also reaches the baseline's peak GenEval 1.23&times; faster.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== Highlights ============================== -->
+<section class="section" style="padding-bottom: 1rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-multiline highlights">
+      <div class="column is-half-tablet is-one-quarter-desktop">
+        <div class="highlight">
+          <div class="value"><span class="from">0.7927 &rarr;</span> 0.8093</div>
+          <div class="label">GenEval Overall on PixelGen-XXL, vs. the matched fine-tune</div>
+        </div>
+      </div>
+      <div class="column is-half-tablet is-one-quarter-desktop">
+        <div class="highlight">
+          <div class="value">+53.1%</div>
+          <div class="label">Panoptic PQ in partial-noise reconstruction (Flickr30K, &tau;&nbsp;=&nbsp;0.5)</div>
+        </div>
+      </div>
+      <div class="column is-half-tablet is-one-quarter-desktop">
+        <div class="highlight">
+          <div class="value">&minus;36.0%</div>
+          <div class="label">Depth AbsRel in partial-noise reconstruction (Flickr30K, &tau;&nbsp;=&nbsp;0.5)</div>
+        </div>
+      </div>
+      <div class="column is-half-tablet is-one-quarter-desktop">
+        <div class="highlight">
+          <div class="value">1.23&times;</div>
+          <div class="label">Faster to the baseline's peak GenEval when training from scratch</div>
+        </div>
+      </div>
+    </div>
+    <p class="has-text-centered" style="font-size: 0.9em; color: var(--pd-muted);">
+      All four dense teachers are dropped after training: the deployed model is the original RGB generator with its original sampler, so inference cost is unchanged.
+    </p>
+  </div>
+</section>
+
+<!-- ============================== Motivation + Method ============================== -->
+<section class="section" style="padding-top: 1.5rem;">
+  <div class="container is-max-desktop">
+
+    <h2 class="title is-4" style="margin-top: 0;">Motivation</h2>
+    <div class="content has-text-justified">
+      <p>
+        REPA matches intermediate denoiser features to a frozen encoder and speeds up diffusion training by an order of magnitude without changing inference. Its targets, however, are almost always semantic encoders such as DINOv2 and CLIP. iREPA showed that the alignment benefit comes mainly from the teacher's <i>spatial structure</i> rather than its global semantics, and dense-prediction foundation models are trained precisely to expose that structure: instance and region boundaries from SAM2, monocular depth from Depth Anything v2, and surface normals from Metric3D v2. We ask whether this semantic and geometric knowledge can supervise an image generator during training, without needing any dense outputs at inference.
+      </p>
+      <p>
+        Pixel-space diffusion is a natural fit, because the denoiser tokens lie on the same RGB patch grid that dense teachers consume, so each token aligns directly with a spatially matched teacher feature. As Figure 2 shows, the two groups of teachers respond to complementary structure in the same image.
+      </p>
+    </div>
+
+    <div class="figure is-wide">
+      <img src="./static/images/teacher_features.jpg" alt="Per-patch feature magnitude maps of DINOv2, SAM2, Depth Anything V2 and Metric3D V2 for three images.">
+      <span class="caption"><b>Figure 2.</b> Semantic and geometric teachers light up complementary spatial structure in the same image. Columns show the RGB input and the per-patch RMS magnitude of spatially normalized features from DINOv2, SAM2, Depth Anything v2, and Metric3D v2 (yellow marks high response). DINOv2 fires on object regions and SAM2 on instance boundaries, while Depth Anything v2 traces depth-ordered silhouettes and Metric3D v2 traces surface-normal layout.</span>
+    </div>
+
+    <div class="content has-text-justified">
+      <p>
+        <b>Dense teachers help individually, but compete under a flat sum.</b> On a PixelGen text-to-image backbone, each of SAM2, Depth Anything v2, and Metric3D v2 improves GenEval Overall over the DINOv2-only baseline when added as an alignment target, and the two geometric teachers lead the segmentation teacher. Yet summing all four REPA losses through a single denoiser projection lands <i>below</i> the best single geometric teacher (0.8036 vs. 0.8069). Semantic encoders reward viewpoint invariance and instance identity, while geometric encoders reward metric layout and surface orientation. When both kinds of gradients share one feature basis, the teachers compete instead of compose. Adding more teachers is therefore not enough: teacher composition is a <b>representation-routing</b> problem.
+      </p>
+    </div>
+
+    <h2 class="title is-4">PixelDense: Factored Semantic&ndash;Geometric REPA</h2>
+    <div class="content has-text-justified">
+      <p>
+        PixelDense reads the token state \(\mathbf{h}_\ell\) at block 8 of a 16-block pixel diffusion denoiser and projects it into two parallel streams. Each stream feeds light per-teacher heads that are aligned to frozen teacher features with a tokenwise cosine loss.
+      </p>
+    </div>
+
+    <div class="figure">
+      <img src="./static/images/framework.jpg" alt="PixelDense framework diagram: a JiT-T2I pixel denoiser whose intermediate features feed a semantic stream (DINO and SAM heads) and a geometric stream (Depth and Metric heads), with an orthogonality loss between the two stream projections.">
+      <span class="caption"><b>Figure 3.</b> PixelDense factors dense-prediction supervision into a semantic stream and a geometric stream. The pixel diffusion denoiser \(f_\theta\) takes the noisy image \(\mathbf{x}_t\) and a Qwen3 text embedding \(y\), and reads its block-8 token state into two parallel projections: a \(D_s = 768\) semantic projection \(W_\text{sem}\) aligned to frozen DINOv2 and SAM2 features, and a \(D_g = 1024\) geometric projection \(W_\text{geo}\) aligned to frozen Depth Anything v2 and Metric3D v2 features. A weight-space orthogonality penalty \(\mathcal{L}_\text{orth}\) on the rows of \(W_\text{sem}\) and \(W_\text{geo}\) keeps the two streams from collapsing into a shared subspace. The four teachers are frozen during training and dropped at inference.</span>
+    </div>
+
+    <div class="columns">
+      <div class="column">
+        <div class="stream is-sem">
+          <h5 class="sem">Semantic stream</h5>
+          DINOv2 and SAM2 share a semantic projection \(\pi_s\) (\(D_s = 768\)). It carries object identity, regions, and instance boundaries.
+        </div>
+      </div>
+      <div class="column">
+        <div class="stream is-geo">
+          <h5 class="geo">Geometric stream</h5>
+          Depth Anything v2 and Metric3D v2 share a geometric projection \(\pi_g\) (\(D_g = 1024\)). It carries 3D layout, depth, and surface orientation.
+        </div>
+      </div>
+      <div class="column">
+        <div class="stream is-orth">
+          <h5 style="color: #b7791f;">Orthogonal subspaces</h5>
+          A data-free penalty on the input projections pushes every semantic row to be orthogonal to every geometric row, so the streams specialize rather than average.
+        </div>
+      </div>
+    </div>
+
+    <div class="content has-text-justified">
+      <p>
+        Two streams alone do not guarantee specialization, since both read the same denoiser token. If \(W_\text{sem}\) and \(W_\text{geo}\) learn the same row subspace, the streams compete for the same denoiser coordinates. PixelDense therefore penalizes the mean absolute cosine between every semantic row and every geometric row:
+      </p>
+      \[
+        \mathcal{L}_\text{orth}(W_\text{sem}, W_\text{geo}) = \frac{1}{D_s D_g}\,\bigl\|\bar{W}_\text{sem}\,\bar{W}_\text{geo}^{\top}\bigr\|_1,
+        \qquad \bar{W}_{i,:} = \frac{W_{i,:}}{\|W_{i,:}\|_2}.
+      \]
+      <p>
+        The full objective adds the factored alignment losses and the orthogonality penalty to the backbone's flow-matching loss, with \(\lambda_\text{orth} = 0.01\) and \(\mathcal{L}_\text{aux}\) (LPIPS and Perceptual-DINO) inherited from PixelGen:
+      </p>
+      \[
+        \mathcal{L} = \mathcal{L}_\text{FM}
+        + \underbrace{0.5\,\mathcal{L}^\text{F}_\text{DINO} + 0.3\,\mathcal{L}^\text{F}_\text{SAM} + 0.3\,\mathcal{L}^\text{F}_\text{DA2} + 0.3\,\mathcal{L}^\text{F}_\text{M3D}}_{\mathcal{L}_\text{align}}
+        + \lambda_\text{orth}\,\mathcal{L}_\text{orth} + \mathcal{L}_\text{aux}.
+      \]
+      <p>
+        Only the denoiser, the two projections, and the four teacher heads receive gradients. After training, the teachers, projections, and heads are all discarded, and the deployed model is the original three-channel RGB generator with its original sampler.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================== Evaluations ============================== -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Evaluations</h2>
+
+    <!-- ---------- Text-to-image ---------- -->
+    <h2 class="title is-4" style="margin-top: 1.5rem;">Text-to-Image Generation</h2>
+    <div class="content has-text-justified">
+      <p>
+        We fine-tune the released 1.1B PixelGen-XXL backbone at 512&times;512 for 10,000 steps (effective batch size 256, 2&times;H200) on BLIP3-o-60K. Both backbones are pretrained with DINOv2 REPA, which stays active during fine-tuning, so the primary baseline is the matched DINOv2-only fine-tune. PixelDense improves GenEval Overall from 0.7927 to 0.8093, a 2.09% relative gain, along with DPG-Bench and HPS v2.1. The gains concentrate on the compositional axes that touch object boundaries, depth layout, and surface geometry.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <p class="table-caption"><b>Table 1.</b> GenEval, DPG-Bench, and HPS v2.1 on the PixelGen-XXL backbone at 512&times;512. Higher is better. Bold marks PixelDense entries that improve over the matched PixelGen fine-tune.</p>
+      <div class="table-container">
+        <table class="table results is-fullwidth">
+          <thead>
+            <tr>
+              <th rowspan="2" class="left">Model</th>
+              <th rowspan="2">Type</th>
+              <th rowspan="2">#Params</th>
+              <th colspan="7">GenEval &uarr;</th>
+              <th rowspan="2">DPG &uarr;</th>
+              <th rowspan="2">HPS &uarr;</th>
+            </tr>
+            <tr>
+              <th>Sing. Obj.</th><th>Two Obj.</th><th>Count.</th><th>Colors</th><th>Attr.</th><th>Pos.</th><th>Overall</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">SDXL</td><td>latent</td><td>2.6B</td><td>98.00</td><td>74.00</td><td>39.00</td><td>85.00</td><td>23.00</td><td>15.00</td><td>0.55</td><td>74.7</td><td>&ndash;</td></tr>
+            <tr><td class="left">SD3</td><td>latent</td><td>8B</td><td>98.00</td><td>84.00</td><td>66.00</td><td>74.00</td><td>43.00</td><td>40.00</td><td>0.68</td><td>&ndash;</td><td>&ndash;</td></tr>
+            <tr class="group-start"><td class="left">PixelDiT (1024 res)</td><td>pixel</td><td>1.3B</td><td>100.00</td><td>94.00</td><td>70.00</td><td>90.00</td><td>65.00</td><td>53.00</td><td>0.78</td><td>83.7</td><td>0.250</td></tr>
+            <tr><td class="left">PixelFlow</td><td>pixel</td><td>0.9B</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>0.60</td><td>77.9</td><td>&ndash;</td></tr>
+            <tr><td class="left">PixelGen</td><td>pixel</td><td>1.1B</td><td>99.00</td><td>88.00</td><td>59.00</td><td>90.00</td><td>70.00</td><td>70.00</td><td>0.79</td><td>&ndash;</td><td>0.281</td></tr>
+            <tr class="group-start"><td class="left">PixelGen + fine-tune</td><td>pixel</td><td>1.1B</td><td>99.38</td><td>88.89</td><td>57.50</td><td>89.36</td><td>69.00</td><td>71.50</td><td>0.7927</td><td>78.7</td><td>0.280</td></tr>
+            <tr class="ours"><td class="left"><b>PixelDense (Ours)</b></td><td>pixel</td><td>1.1B</td><td>99.38</td><td class="best">89.39</td><td class="best">58.75</td><td class="best">93.09</td><td class="best">70.50</td><td class="best">74.50</td><td class="best">0.8093</td><td class="best">78.9</td><td class="best">0.282</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ---------- Geometry preservation ---------- -->
+    <h2 class="title is-4">Geometry Preservation under Partial-Noise Reconstruction</h2>
+    <div class="content has-text-justified">
+      <p>
+        Text-to-image metrics do not measure whether a generation preserves the geometry of a specific input scene. We therefore corrupt an input image at noise level \(\tau \in \{0.5, 0.7, 0.9\}\), reconstruct it with its caption, and score the reconstruction with off-the-shelf probes that are independent of the REPA teachers: COCO-trained OneFormer (Swin-L and DiNAT-L) for panoptic PQ and mIoU, and Marigold for depth and surface normals. PixelDense preserves structure better than the matched PixelGen baseline on every dataset, reference type, probe, and noise level. The gap is largest at \(\tau = 0.5\) and narrows at \(\tau = 0.9\), where severe noise removes most of the input structure for both models.
+      </p>
+    </div>
+
+    <div class="figure">
+      <img src="./static/images/geometry_preservation.jpg" alt="Partial-noise reconstruction comparison: noised input with ground-truth segmentation, depth and normals, then PixelGen and PixelDense reconstructions with their predicted segmentation, depth and normals.">
+      <span class="caption"><b>Figure 4.</b> Qualitative geometry preservation. The GT row shows the noised input with the reference segmentation, depth, and normal maps; the PixelGen and PixelDense rows show each reconstruction with the corresponding predictions. PixelGen shows more ghosting and structural distortion, while PixelDense better preserves the ground-truth geometry.</span>
+    </div>
+
+    <div class="table-wrap">
+      <p class="table-caption"><b>Table 2.</b> Partial-noise reconstruction from \(\mathbf{x}_t = (1-\tau)\mathbf{x}_0 + \tau\varepsilon\). OneFormer PQ/mIoU are averaged over Swin-L and DiNAT-L; depth cells report mean/median AbsRel after per-image affine fitting; normal cells report mean angular error in degrees. Pseudo references apply the same predictor to the original image. Higher is better for PQ and mIoU; lower is better for depth and normals.</p>
+      <div class="table-container">
+        <table class="table results is-fullwidth">
+          <thead>
+            <tr>
+              <th rowspan="2" class="left">Dataset</th>
+              <th rowspan="2" class="left">Reference</th>
+              <th rowspan="2">&tau;</th>
+              <th colspan="2">OneFormer PQ &uarr;</th>
+              <th colspan="2">OneFormer mIoU &uarr;</th>
+              <th colspan="2">Depth AbsRel &darr;</th>
+              <th colspan="2">Normal err. (&deg;) &darr;</th>
+            </tr>
+            <tr>
+              <th>PixelGen</th><th>Ours</th>
+              <th>PixelGen</th><th>Ours</th>
+              <th>PixelGen</th><th>Ours</th>
+              <th>PixelGen</th><th>Ours</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="6" class="left">COCO val</td><td rowspan="3" class="left">Real panoptic</td>
+              <td>0.5</td><td>23.23</td><td class="best">31.43</td><td>37.67</td><td class="best">45.47</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td>
+            </tr>
+            <tr><td>0.7</td><td>15.70</td><td class="best">21.31</td><td>30.64</td><td class="best">36.59</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
+            <tr><td>0.9</td><td>7.99</td><td class="best">9.64</td><td>22.19</td><td class="best">24.26</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
+            <tr class="group-start">
+              <td rowspan="3" class="left">Pseudo orig.</td>
+              <td>0.5</td><td>29.53</td><td class="best">41.16</td><td>38.70</td><td class="best">47.99</td><td>1.58/1.06</td><td class="best">1.06/0.68</td><td>21.80</td><td class="best">17.84</td>
+            </tr>
+            <tr><td>0.7</td><td>18.93</td><td class="best">26.51</td><td>30.73</td><td class="best">37.32</td><td>2.09/1.54</td><td class="best">1.63/1.12</td><td>26.90</td><td class="best">23.48</td></tr>
+            <tr><td>0.9</td><td>9.28</td><td class="best">11.40</td><td>21.86</td><td class="best">24.11</td><td>2.83/2.24</td><td class="best">2.61/2.03</td><td>33.20</td><td class="best">31.94</td></tr>
+            <tr class="group-start">
+              <td rowspan="3" class="left">Flickr30K</td><td rowspan="3" class="left">Pseudo orig.</td>
+              <td>0.5</td><td>19.66</td><td class="best">30.09</td><td>19.51</td><td class="best">28.73</td><td>1.61/1.14</td><td class="best">1.03/0.68</td><td>22.45</td><td class="best">18.25</td>
+            </tr>
+            <tr><td>0.7</td><td>11.03</td><td class="best">16.70</td><td>14.41</td><td class="best">18.62</td><td>2.22/1.70</td><td class="best">1.66/1.21</td><td>28.12</td><td class="best">24.62</td></tr>
+            <tr><td>0.9</td><td>4.19</td><td class="best">5.90</td><td>9.47</td><td class="best">10.94</td><td>3.01/2.49</td><td class="best">2.77/2.31</td><td>34.97</td><td class="best">33.88</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ---------- Teacher composition + ablations ---------- -->
+    <h2 class="title is-4">Teacher Composition and Ablations</h2>
+    <div class="content has-text-justified">
+      <p>
+        Every added dense teacher improves GenEval Overall over DINOv2 alone, and the geometric teachers lead (Depth Anything v2 0.8069, Metric3D v2 0.8060, SAM2 0.8020). The naive four-teacher sum falls below the best single teacher under all three weightings. Full PixelDense reaches 0.8093 and outperforms all single-teacher and unfactored variants. Either stream alone scores lower, so the semantic and geometric cues are complementary under the factored objective, and the leave-one-out rows show that every teacher contributes. The design ablations favor projection widths that match the native teacher widths, a mid-network alignment block, and a moderate orthogonality weight.
+      </p>
+    </div>
+
+    <div class="columns">
+      <div class="column">
+        <div class="table-wrap" style="margin-top: 0;">
+          <p class="table-caption"><b>Table 3.</b> REPA teacher composition (GenEval Overall). The baseline (DINOv2 only, PixelGen fine-tune) scores 0.7927. DA2: Depth Anything v2; M3D: Metric3D v2.</p>
+          <div class="table-container">
+            <table class="table results is-fullwidth">
+              <thead><tr><th class="left">REPA teacher</th><th>GenEval &uarr;</th></tr></thead>
+              <tbody>
+                <tr><td class="sub" colspan="2">(a) Single teacher + DINOv2</td></tr>
+                <tr><td class="left">+ SAM2</td><td>0.8020</td></tr>
+                <tr><td class="left">+ DA2</td><td>0.8069</td></tr>
+                <tr><td class="left">+ M3D</td><td>0.8060</td></tr>
+                <tr><td class="sub" colspan="2">(b) Unfactored four-teacher sum</td></tr>
+                <tr><td class="left">Equal weight</td><td>0.8036</td></tr>
+                <tr><td class="left">L2-normalized</td><td>0.7970</td></tr>
+                <tr><td class="left">Reduced weights</td><td>0.8009</td></tr>
+                <tr><td class="sub" colspan="2">(c) Factored streams</td></tr>
+                <tr><td class="left">Semantic only (DINOv2 + SAM2)</td><td>0.8022</td></tr>
+                <tr><td class="left">Geometric only (DA2 + M3D)</td><td>0.7960</td></tr>
+                <tr class="ours"><td class="left"><b>Full PixelDense</b></td><td class="best">0.8093</td></tr>
+                <tr><td class="sub" colspan="2">(d) Leave-one-out from PixelDense</td></tr>
+                <tr><td class="left">w/o DINOv2</td><td>0.7940</td></tr>
+                <tr><td class="left">w/o SAM2</td><td>0.8027</td></tr>
+                <tr><td class="left">w/o DA2</td><td>0.8025</td></tr>
+                <tr><td class="left">w/o M3D</td><td>0.8037</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="table-wrap" style="margin-top: 0;">
+          <p class="table-caption"><b>Table 4.</b> Ablations on PixelDense design choices (GenEval Overall). Each row changes one factor from the default; defaults are highlighted.</p>
+          <div class="table-container">
+            <table class="table results is-fullwidth">
+              <thead><tr><th class="left">Configuration</th><th>GenEval &uarr;</th></tr></thead>
+              <tbody>
+                <tr><td class="sub" colspan="2">(a) Bottleneck width (semantic / geometric)</td></tr>
+                <tr><td class="left">512 / 512</td><td>0.8053</td></tr>
+                <tr class="ours"><td class="left"><b>768 / 1024</b> (default)</td><td class="best">0.8093</td></tr>
+                <tr><td class="left">1024 / 1024</td><td>0.8065</td></tr>
+                <tr><td class="sub" colspan="2">(b) Alignment block</td></tr>
+                <tr><td class="left">Block 6</td><td>0.8075</td></tr>
+                <tr class="ours"><td class="left"><b>Block 8</b> (default)</td><td class="best">0.8093</td></tr>
+                <tr><td class="left">Block 10</td><td>0.8007</td></tr>
+                <tr><td class="sub" colspan="2">(c) REPA weights (DINOv2 / SAM2 / DA2 / M3D)</td></tr>
+                <tr><td class="left">0.3 / 0.3 / 0.3 / 0.3</td><td>0.8079</td></tr>
+                <tr class="ours"><td class="left"><b>0.5 / 0.3 / 0.3 / 0.3</b> (default)</td><td class="best">0.8093</td></tr>
+                <tr><td class="left">0.5 / 0.5 / 0.5 / 0.5</td><td>0.8081</td></tr>
+                <tr><td class="sub" colspan="2">(d) Orthogonality weight \(\lambda_\text{orth}\)</td></tr>
+                <tr><td class="left">0</td><td>0.8053</td></tr>
+                <tr><td class="left">0.001</td><td>0.8077</td></tr>
+                <tr class="ours"><td class="left"><b>0.01</b> (default)</td><td class="best">0.8093</td></tr>
+                <tr><td class="left">0.1</td><td>0.8023</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Training from scratch ---------- -->
+    <h2 class="title is-4">Training from Scratch</h2>
+    <div class="columns is-vcentered">
+      <div class="column">
+        <div class="content has-text-justified">
+          <p>
+            Our main runs fine-tune a model that already carries DINOv2 alignment. To test whether dense teachers also help without that head start, we train a pixel diffusion model from random initialization at 128&times;128 on BLIP3-o-60K, with and without PixelDense, under matched optimizer, batch size, and data ordering. PixelDense reaches the baseline's peak GenEval roughly <b>1.23&times; faster</b> and stays above it for the rest of the 100K-step horizon, while the baseline drifts downward after its peak.
+          </p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="figure" style="margin: 0 auto;">
+          <img src="./static/images/scratch_convergence.svg" alt="GenEval versus training steps from 25K to 100K at 128px: the PixelDense curve rises faster and stays above the baseline curve.">
+          <span class="caption"><b>Figure 5.</b> GenEval Overall vs. training steps from random initialization at 128&times;128.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- DeCo transfer ---------- -->
+    <h2 class="title is-4">Transfer to DeCo</h2>
+    <div class="content has-text-justified">
+      <p>
+        PixelDense is not tied to one backbone. Applying the same teachers, losses, hyperparameters, and checkpoint-selection rule to DeCo at 512&times;512, without retuning, improves both GenEval Overall and DPG-Bench over the matched DeCo fine-tune. The gain is smaller than on PixelGen, likely because DeCo starts from a stronger model, but the direction is consistent.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <p class="table-caption"><b>Table 5.</b> The PixelDense recipe transfers to DeCo without retuning. Higher is better. Bold marks PixelDense entries that improve over the matched DeCo fine-tune.</p>
+      <div class="table-container">
+        <table class="table results is-fullwidth">
+          <thead>
+            <tr>
+              <th rowspan="2" class="left">Model</th>
+              <th colspan="7">GenEval &uarr;</th>
+              <th rowspan="2">DPG &uarr;</th>
+            </tr>
+            <tr>
+              <th>Sing. Obj.</th><th>Two Obj.</th><th>Count.</th><th>Colors</th><th>Attr.</th><th>Pos.</th><th>Overall</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">DeCo T2I, released checkpoint</td><td>100.00</td><td>92.00</td><td>72.00</td><td>91.00</td><td>79.00</td><td>80.00</td><td>0.8600</td><td>81.4</td></tr>
+            <tr><td class="left">DeCo + fine-tune</td><td>99.38</td><td>94.44</td><td>73.75</td><td>93.62</td><td>79.00</td><td>77.00</td><td>0.8620</td><td>81.4</td></tr>
+            <tr class="ours"><td class="left"><b>PixelDense (Ours)</b></td><td class="best">100.00</td><td>93.43</td><td class="best">74.38</td><td>93.62</td><td class="best">80.00</td><td class="best">80.00</td><td class="best">0.8690</td><td class="best">81.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ---------- Qualitative ---------- -->
+    <h2 class="title is-4">Qualitative Results</h2>
+    <div class="content has-text-justified">
+      <p>
+        We compare PixelGen and PixelDense on matched prompts and seeds, using the same 25-step sampler as the quantitative evaluation. The examples track the quantitative gains: object count, relative position, color binding, object boundaries, and perspective.
+      </p>
+    </div>
+
+    <div class="figure is-wide">
+      <img src="./static/images/qualitative_compare.jpg" alt="Side-by-side text-to-image samples from PixelGen and PixelDense with failure regions of PixelGen boxed in red.">
+      <span class="caption"><b>Figure 6.</b> Text-to-image comparison between PixelGen and PixelDense. Red boxes mark PixelGen failures. PixelDense better preserves object counts, spatial relations, color binding, and scene geometry, yielding stronger prompt alignment and visual coherence.</span>
+    </div>
+
+    <div class="figure is-medium">
+      <img src="./static/images/more_samples.jpg" alt="A four by four grid of additional PixelDense samples spanning photographs, portraits, landscapes and stylized scenes.">
+      <span class="caption"><b>Figure 7.</b> Additional PixelDense samples on the PixelGen-XXL backbone at 512&times;512: object-centered photographs, painterly portraits, atmospheric landscapes, and stylized fantasy scenes.</span>
+    </div>
+
+    <div class="figure">
+      <img src="./static/images/more_geometry.jpg" alt="Additional partial-noise reconstruction comparisons between PixelGen and PixelDense with segmentation, depth and normal probes.">
+      <span class="caption"><b>Figure 8.</b> Additional partial-noise reconstruction comparisons. Each block shows the noised input, the two reconstructions, and the panoptic (OneFormer), depth, and surface-normal (Marigold) probes. PixelDense tracks object boundaries, depth ordering, and surface orientation more faithfully than PixelGen.</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================== BibTeX ============================== -->
+<section class="section" id="bibtex">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <div class="bibtex-wrap">
+      <button class="button is-small is-light copy-btn" type="button" id="copy-bibtex">
+        <span class="icon is-small"><i class="far fa-copy"></i></span>
+        <span class="copy-label">Copy</span>
+      </button>
+<pre><code id="bibtex-code">@inproceedings{yang2026pixeldense,
+  title     = {PixelDense: Dense Prediction as Representation Alignment for Pixel Diffusion},
+  author    = {Yang, Lehan and Qi, Daiqing and Zhang, Wenhao and Li, Avery and Yang, Yiqing and
+               Li, Yifan and Kong, Yu and Zheng, Haitian and Zhang, Zhifei and Lin, Zhe and
+               Jampani, Varun and Li, Sheng},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="columns is-centered">
+    <div class="column is-8">
+      <div class="content has-text-centered">
+        <p>
+          This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+        </p>
+        <p>
+          Website adapted from the <a href="https://nerfies.github.io">Nerfies</a> and <a href="https://zehong-ma.github.io/PixelGen/">PixelGen</a> project pages.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Click a figure to open it at full resolution (useful on phones).
+  document.querySelectorAll('.figure img').forEach(function (img) {
+    var link = document.createElement('a');
+    link.href = img.getAttribute('src');
+    link.target = '_blank';
+    img.parentNode.insertBefore(link, img);
+    link.appendChild(img);
+  });
+
+  (function () {
+    var btn = document.getElementById('copy-bibtex');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var text = document.getElementById('bibtex-code').innerText;
+      var label = btn.querySelector('.copy-label');
+      var done = function () {
+        label.textContent = 'Copied!';
+        setTimeout(function () { label.textContent = 'Copy'; }, 1500);
+      };
+      var fallback = function () {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

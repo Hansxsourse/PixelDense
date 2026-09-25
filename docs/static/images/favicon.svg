@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Tile split into the two alignment streams: semantic (blue) and geometric (teal). -->
+  <defs>
+    <clipPath id="tile"><rect width="32" height="32" rx="7"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="32" height="32" fill="#13937a"/>
+    <polygon points="0,0 32,0 0,32" fill="#2f6fc6"/>
+  </g>
+  <!-- Pixel-art "P" on a 4-unit grid: pixel diffusion. -->
+  <path fill="#fff" d="M8 4h12v4h4v8h-4v4h-8v8h-4z M12 8v8h8v-8z" fill-rule="evenodd"/>
+</svg>
