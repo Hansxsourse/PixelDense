@@ -1,0 +1,132 @@
+seed_everything: false
+tags:
+  exp: pixeldense_sft_res512
+torch_hub_dir: ~/.cache/torch/hub
+ckpt_path: null
+huggingface_cache_dir: null
+trainer:
+  default_root_dir: ./workdirs
+  accelerator: auto
+  strategy: ddp
+  devices: auto
+  num_nodes: 1
+  accumulate_grad_batches: 8
+  precision: bf16-mixed
+  logger:
+      class_path: lightning.pytorch.loggers.WandbLogger
+      init_args:
+        project: pixeldense
+        name: pixeldense_sft_res512
+  max_steps: 10000
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  limit_val_batches: 0
+  log_every_n_steps: 50
+  deterministic: null
+  inference_mode: true
+  use_distributed_sampler: false
+  callbacks:
+    - class_path: src.callbacks.model_checkpoint.CheckpointHook
+      init_args:
+        every_n_train_steps: 10000
+        save_top_k: -1
+  plugins:
+    - src.plugins.bd_env.BDEnvironment
+model:
+  vae:
+    class_path: src.models.autoencoder.pixel.PixelAE
+  denoiser:
+    class_path: src.models.transformer.JiT_T2I.JiT_T2I
+    init_args:
+      patch_size: 16
+      input_size: 512
+      in_channels: 3
+      hidden_size: &hidden_dim 1536
+      num_blocks: 16
+      num_groups: 24
+      txt_embed_dim: &txt_embed_dim 2048
+      txt_max_length: 128
+      bottleneck_dim: 256
+      num_text_blocks: 4
+      weight_path: ./ckpts/PixelGen_XXL_T2I.ckpt
+      load_ema: false
+  conditioner:
+    class_path: src.models.conditioner.qwen3_text_encoder.Qwen3TextEncoder
+    init_args:
+      weight_path: Qwen/Qwen3-1.7B
+      embed_dim: *txt_embed_dim
+      max_length: 128
+  diffusion_trainer:
+    class_path: src.diffusion.flow_matching.training_pixeldense.PixelDenseTrainer
+    init_args:
+      lognorm_t: true
+      encoder:
+        class_path: src.models.encoder.DINOv2
+        init_args:
+          weight_path: ~/.cache/torch/hub/checkpoints/dinov2_vitb14_pretrain.pth
+      sam_encoder:
+        class_path: src.models.encoder_sam2.SAM2Encoder
+        init_args:
+          ckpt_path: ./ckpts/sam2.1_hiera_large.pt
+      depth_repa_encoder:
+        class_path: src.models.encoder_depth_anything.DepthAnythingV2Encoder
+        init_args:
+          repo_path: ./third_party/Depth-Anything-V2
+          weight_path: ./ckpts/depth_anything_v2_vitl.pth
+          extract_layer: 17
+      normal_repa_encoder:
+        class_path: src.models.encoder_metric3d.Metric3Dv2Encoder
+        init_args:
+          repo_path: ./third_party/Metric3D
+          weight_path: ./ckpts/metric_depth_vit_large_800k.pth
+          extract_layer: 17
+      align_layer: 8
+      proj_denoiser_dim: *hidden_dim
+      factored_semantic_dim: 768
+      factored_geometric_dim: 1024
+      proj_encoder_dim: 768
+      proj_sam_encoder_dim: 256
+      proj_depth_repa_encoder_dim: 1024
+      proj_normal_repa_encoder_dim: 1024
+      feat_loss_weight: 0.5
+      sam_loss_weight: 0.3
+      depth_repa_loss_weight: 0.3
+      normal_repa_loss_weight: 0.3
+      orth_reg_weight: 0.01
+      repa_curriculum_decay_steps: 300000
+      P_mean: -0.8
+      P_std: 0.8
+      t_eps: 0.05
+      scheduler: &scheduler src.diffusion.flow_matching.scheduling.LinearScheduler
+      lpips_weight: 0.1
+      dino_weight: 0.01
+      percept_t_threshold: 0.3
+  diffusion_sampler:
+    class_path: src.diffusion.flow_matching.adam_sampling.AdamLMSamplerJiT
+    init_args:
+      num_steps: 25
+      guidance: 4.0
+      timeshift: 3.0
+      order: 2
+      scheduler: *scheduler
+      guidance_fn: src.diffusion.base.guidance.simple_guidance_fn
+  ema_tracker:
+    class_path: src.callbacks.simple_ema.SimpleEMA
+    init_args:
+      decay: 0.9999
+  optimizer:
+    class_path: torch.optim.AdamW
+    init_args:
+      lr: 1e-5
+      betas:
+        - 0.9
+        - 0.999
+      weight_decay: 0.00
+data:
+  train_dataset:
+    class_path: src.data.dataset.image_txt.ImageText
+    init_args:
+      root: ./data/BLIP3o-60k
+      resolution: 512
+  train_batch_size: 16
+  train_num_workers: 8

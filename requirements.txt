@@ -1,0 +1,17 @@
+lightning
+omegaconf
+torch==2.7.1
+diffusers
+transformers
+jsonargparse[signatures]==4.41.0
+torchvision
+timm
+accelerate
+gradio
+wandb
+webdataset
+tensorboard
+einops
+lpips
+webdataset
+pyarrow

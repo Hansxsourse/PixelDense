@@ -1,0 +1,78 @@
+seed_everything: false
+tags:
+  exp: pixeldense_inference
+torch_hub_dir: ~/.cache/torch/hub
+huggingface_cache_dir: null
+trainer:
+  default_root_dir: ./workdirs
+  accelerator: auto
+  strategy: ddp
+  devices: auto
+  num_nodes: 1
+  precision: bf16-mixed
+  logger: null
+  inference_mode: true
+  use_distributed_sampler: false
+  callbacks:
+    - class_path: src.callbacks.save_images.SaveImagesHook
+      init_args:
+        save_dir: images
+  plugins:
+    - src.plugins.bd_env.BDEnvironment
+model:
+  vae:
+    class_path: src.models.autoencoder.pixel.PixelAE
+  denoiser:
+    class_path: src.models.transformer.JiT_T2I.JiT_T2I
+    init_args:
+      patch_size: 16
+      input_size: 512
+      in_channels: 3
+      hidden_size: 1536
+      num_blocks: 16
+      num_groups: 24
+      txt_embed_dim: &txt_embed_dim 2048
+      txt_max_length: 128
+      bottleneck_dim: 256
+      num_text_blocks: 4
+      weight_path: ./ckpts/PixelDense_XXL_T2I.ckpt
+      load_ema: true
+  conditioner:
+    class_path: src.models.conditioner.qwen3_text_encoder.Qwen3TextEncoder
+    init_args:
+      weight_path: Qwen/Qwen3-1.7B
+      embed_dim: *txt_embed_dim
+      max_length: 128
+  diffusion_trainer:
+    class_path: src.diffusion.flow_matching.training.FlowMatchingTrainer
+    init_args:
+      scheduler: &scheduler src.diffusion.flow_matching.scheduling.LinearScheduler
+  diffusion_sampler:
+    class_path: src.diffusion.flow_matching.adam_sampling.AdamLMSamplerJiT
+    init_args:
+      num_steps: 25
+      guidance: 4.0
+      timeshift: 3.0
+      order: 2
+      scheduler: *scheduler
+      guidance_fn: src.diffusion.base.guidance.simple_guidance_fn
+  ema_tracker:
+    class_path: src.callbacks.simple_ema.SimpleEMA
+    init_args:
+      decay: 0.9999
+data:
+  pred_dataset:
+    class_path: src.data.dataset.randn.RandomNDataset
+    init_args:
+      latent_shape:
+        - 3
+        - 512
+        - 512
+      conditions:
+        - A red fox sitting in a snowy forest at sunrise.
+        - A vintage bicycle leaning against a brick wall covered in ivy.
+        - A cup of cappuccino with latte art on a wooden table next to an open book.
+        - A futuristic city skyline at night, reflected in a calm river.
+      num_samples_per_instance: 1
+  pred_batch_size: 8
+  pred_num_workers: 1
