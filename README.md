@@ -5,6 +5,7 @@
 [![arXiv](https://img.shields.io/badge/Arxiv-2610.00483-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2610.00483)
 [![Home Page](https://img.shields.io/badge/Project-<Website>-blue.svg)](https://bio.lehanyang.info/PixelDense/)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-yellow.svg)](https://huggingface.co/xsourse/PixelDense)
+[![Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-orange.svg)](https://huggingface.co/spaces/mzhu1026/PixelDense)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Official implementation of **PixelDense** (NeurIPS 2026).
@@ -18,7 +19,21 @@ This repository is built on [PixelGen](https://github.com/Zehong-Ma/PixelGen).
 - [x] ~~arXiv~~
 - [x] ~~Release code~~
 - [x] ~~Release checkpoint~~
-- [ ] Release demo
+- [x] ~~Release demo~~
+
+## Demo
+
+Try PixelDense in your browser on [🤗 Hugging Face Spaces](https://huggingface.co/spaces/mzhu1026/PixelDense).
+
+The Gradio app is in [`demo/`](demo/). To run it locally on a CUDA GPU:
+
+```bash
+cd demo
+pip install -r requirements.txt
+python app.py
+```
+
+See [`demo/README.md`](demo/README.md) for details.
 
 ## Checkpoint
 
