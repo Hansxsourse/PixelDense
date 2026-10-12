@@ -25,6 +25,16 @@ This repository is built on [PixelGen](https://github.com/Zehong-Ma/PixelGen).
 
 Try PixelDense in your browser on [🤗 Hugging Face Spaces](https://huggingface.co/spaces/mzhu1026/PixelDense).
 
+The Gradio app is in [`demo/`](demo/). To run it locally on a CUDA GPU:
+
+```bash
+cd demo
+pip install -r requirements.txt
+python app.py
+```
+
+See [`demo/README.md`](demo/README.md) for details.
+
 ## Checkpoint
 
 | Model | Params | Resolution | Download |
